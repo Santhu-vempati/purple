@@ -1,0 +1,60 @@
+pipeline{
+agent any
+tools{
+maven "maven3.6.2"
+}
+
+options{
+------------paste the old build token without properties
+timestamps()
+}
+
+triggers{
+//pullSCM
+pollSCM('* * * * *')---get this token from snippet generator
+//Buildperiodically
+//cron('* * * * *')
+//gitHubwebhook
+//githubpush()
+}
+
+stages{
+stage('CheckOutCode'){
+steps{
+---------------------------
+}
+}
+
+stage('Build'){
+steps{
+sh "mvn clean package"
+}
+}
+
+stage('ExcutesonarQubeReport'){
+steps{
+sh "mvn clean sonar:sonar"
+}
+}
+stage('UploadArtifactsintoNexus'){
+steps{
+sh "mvn clean deploy"
+}
+}
+stage('DeployAppintoTomcatserver'){
+steps{
+-------------------paste SSHagent token
+sh "scp -o strictHostkeychecking=no target/--reponame.war-- ec2-user@--TCipadd-- :/opt/apache-tomcat-9.0.53/webapps"
+}
+}
+
+}//stages closing tag
+post{
+success{
+-------------paste mail snippte generator token
+}
+Failure{
+-------------paste same mail snippte generator token but keep failed in place of success
+}
+}
+}//pipeline closing tag
